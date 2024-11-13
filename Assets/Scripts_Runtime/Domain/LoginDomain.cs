@@ -16,16 +16,30 @@ namespace UnityClient {
 
         public static void OnData(ClientContext ctx, ArraySegment<byte> data) {
             int headerID = BitConverter.ToInt32(data.Array, 0);
+            string jsonStr = System.Text.Encoding.UTF8.GetString(data.Array, 4, data.Count - 4);
 
-            if (headerID == MessageHelper.HEADER_LOGIN_RES) {
-                string jsonStr = System.Text.Encoding.UTF8.GetString(data.Array, 4, data.Count - 4);
+            if (headerID == MessageHelper.LOGIN_RES) {
                 LoginResMessage msg = JsonUtility.FromJson<LoginResMessage>(jsonStr);
                 OnLoginRes(ctx, msg);
+            } else if (headerID == MessageHelper.LOGIN_BROADCAST) {
+                LoginBroadcastMessage msg = JsonUtility.FromJson<LoginBroadcastMessage>(jsonStr);
+                OnLoginBroadcast(ctx, msg);
+            } else {
+                Debug.LogError("Unknown headerID: " + headerID);
             }
         }
 
         static void OnLoginRes(ClientContext ctx, LoginResMessage msg) {
             Debug.Log("LoginRes: " + msg.status);
+        }
+
+        static void OnLoginBroadcast(ClientContext ctx, LoginBroadcastMessage msg) {
+            GameObject go = GameObject.Instantiate(ctx.playerEntityPrefab);
+            PlayerEntity player = go.GetComponent<PlayerEntity>();
+            player.username = msg.username;
+            player.SetPos(msg.pos);
+
+            ctx.playerRepository.Add(player);
         }
 
     }

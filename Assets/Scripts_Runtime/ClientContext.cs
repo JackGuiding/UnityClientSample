@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace UnityClient {
 
@@ -6,7 +7,13 @@ namespace UnityClient {
 
         public Telepathy.Client client;
 
-        public ClientContext() { }
+        public GameObject playerEntityPrefab;
+
+        public PlayerRepository playerRepository;
+
+        public ClientContext() {
+            playerRepository = new PlayerRepository();
+        }
 
         public void Inject(Telepathy.Client client) {
             this.client = client;

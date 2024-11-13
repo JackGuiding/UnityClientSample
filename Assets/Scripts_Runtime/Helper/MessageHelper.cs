@@ -6,14 +6,16 @@ namespace UnityProtocol {
 
     public static class MessageHelper {
 
-        public const int HEADER_LOGIN_REQ = 10;
-        public const int HEADER_LOGIN_RES = 11;
-        public const int HEADER_HELLO_REQ = 20;
+        public const int LOGIN_REQ = 10;
+        public const int LOGIN_RES = 11;
+        public const int LOGIN_BROADCAST = 12;
+        public const int HELLO_REQ = 20;
 
         static Dictionary<Type, int> typeToHeaderID = new Dictionary<Type, int>() {
-            {typeof(LoginReqMessage), HEADER_LOGIN_REQ},
-            {typeof(LoginResMessage), HEADER_LOGIN_RES},
-            {typeof(HelloReqMessage), HEADER_HELLO_REQ},
+            {typeof(LoginReqMessage), LOGIN_REQ},
+            {typeof(LoginResMessage), LOGIN_RES},
+            {typeof(LoginBroadcastMessage), LOGIN_BROADCAST},
+            {typeof(HelloReqMessage), HELLO_REQ},
         };
 
         public static byte[] EncodeMessage<T>(T message) where T : struct {
@@ -37,7 +39,7 @@ namespace UnityProtocol {
 
         public static T DecodeMessage<T>(ArraySegment<byte> data) where T : struct {
             int headerID = BitConverter.ToInt32(data.Array, 0);
-            if (headerID == HEADER_LOGIN_RES) {
+            if (headerID == LOGIN_RES) {
                 return DecodeMessageWithoutHeader<T>(data);
             } else {
                 throw new Exception("Unknown headerID: " + headerID);

@@ -11,6 +11,8 @@ namespace UnityClient {
 
         ClientContext ctx;
 
+        [SerializeField] GameObject playerEntityPrefab;
+
         Telepathy.Client client;
 
         bool isTearDown;
@@ -24,6 +26,7 @@ namespace UnityClient {
 
             // ==== Inject ====
             ctx.Inject(client);
+            ctx.playerEntityPrefab = playerEntityPrefab;
 
             // - Binding Events
             client.OnConnected = () => {
@@ -48,7 +51,7 @@ namespace UnityClient {
 
             if (client.Connected) {
                 if (Input.GetKeyUp(KeyCode.Q)) {
-                    LoginDomain.SendLogin(ctx, "chenwan");
+                    LoginDomain.SendLogin(ctx, "cyl");
                 } else if (Input.GetKeyUp(KeyCode.W)) {
                     HelloReqMessage message = new HelloReqMessage();
                     message.myName = "CW";
