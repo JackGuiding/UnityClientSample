@@ -53,13 +53,7 @@ namespace UnityClient {
                 if (Input.GetKeyUp(KeyCode.Q)) {
                     LoginDomain.SendLogin(ctx, "cyl");
                 } else if (Input.GetKeyUp(KeyCode.W)) {
-                    HelloReqMessage message = new HelloReqMessage();
-                    message.myName = "CW";
-                    message.myAge = 18;
-                    message.myData = "Hello Server!";
-
-                    byte[] data = MessageHelper.EncodeMessage(message);
-                    client.Send(data);
+                    LoginDomain.SendLogin(ctx, "cyh");
                 }
             }
 
