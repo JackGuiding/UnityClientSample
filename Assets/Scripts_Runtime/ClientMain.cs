@@ -10,6 +10,8 @@ namespace UnityClient {
 
         Telepathy.Client client;
 
+        bool isTearDown;
+
         void Start() {
             int messageSize = 1024;
             client = new Client(messageSize);
@@ -20,7 +22,7 @@ namespace UnityClient {
             };
 
             client.OnData = (ArraySegment<byte> data) => {
-                Debug.Log("Received a message from the server");
+                Debug.Log("Received a message from the server: " + data.Count);
             };
 
             client.OnDisconnected = () => {
@@ -44,6 +46,22 @@ namespace UnityClient {
 
             client.Tick(100);
 
+        }
+
+        void OnDestroy() {
+            OnTearDown();
+        }
+
+        void OnApplicationQuit() {
+            OnTearDown();
+        }
+
+        void OnTearDown() {
+            if (isTearDown) {
+                return;
+            }
+            isTearDown = true;
+            client.Disconnect();
         }
     }
 }
