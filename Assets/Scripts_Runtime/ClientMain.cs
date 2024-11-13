@@ -39,8 +39,20 @@ namespace UnityClient {
 
             if (Input.GetKeyUp(KeyCode.Space)) {
                 if (client.Connected) {
-                    client.Send(new ArraySegment<byte>(new byte[1] { 0 }));
-                    Debug.Log("Connecting to the server");
+
+                    HelloMessage message = new HelloMessage();
+                    message.myName = "CW";
+                    message.myAge = 18;
+                    message.myData = "Hello Server!";
+
+                    // 1. struct HelloMessage -> string
+                    string jsonStr = JsonUtility.ToJson(message);
+
+                    // 2. string -> byte[]
+                    byte[] data = System.Text.Encoding.UTF8.GetBytes(jsonStr);
+
+                    client.Send(data);
+    
                 }
             }
 
