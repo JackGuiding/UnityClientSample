@@ -9,13 +9,21 @@ namespace UnityClient {
 
     public class ClientMain : MonoBehaviour {
 
+        ClientContext ctx;
+
         Telepathy.Client client;
 
         bool isTearDown;
 
         void Start() {
+
+            // ==== Ctor ====
+            ctx = new ClientContext();
             int messageSize = 1024;
             client = new Client(messageSize);
+
+            // ==== Inject ====
+            ctx.Inject(client);
 
             // - Binding Events
             client.OnConnected = () => {
@@ -23,7 +31,7 @@ namespace UnityClient {
             };
 
             client.OnData = (ArraySegment<byte> data) => {
-                Debug.Log("Received a message from the server: " + data.Count);
+                LoginDomain.OnData(ctx, data);
             };
 
             client.OnDisconnected = () => {
@@ -40,43 +48,20 @@ namespace UnityClient {
 
             if (client.Connected) {
                 if (Input.GetKeyUp(KeyCode.Q)) {
-
-                    LoginMessage message = new LoginMessage();
-                    message.username = "chenwan";
-
-                    byte[] data = BakeMessage(1, message);
-                    client.Send(data);
-
+                    LoginDomain.SendLogin(ctx, "chenwan");
                 } else if (Input.GetKeyUp(KeyCode.W)) {
-                    HelloMessage message = new HelloMessage();
+                    HelloReqMessage message = new HelloReqMessage();
                     message.myName = "CW";
                     message.myAge = 18;
                     message.myData = "Hello Server!";
 
-                    byte[] data = BakeMessage(2, message);
+                    byte[] data = MessageHelper.EncodeMessage(message);
                     client.Send(data);
                 }
             }
 
             client.Tick(100);
 
-        }
-
-        byte[] BakeMessage<T>(int headerID, T message) where T : struct {
-            // 1. struct Message -> string
-            string jsonStr = JsonUtility.ToJson(message);
-            // 2. string -> byte[]
-            byte[] data = System.Text.Encoding.UTF8.GetBytes(jsonStr);
-
-            // 3. byte[] -> byte[] (add header)
-            byte[] final = new byte[data.Length + 4];
-            final[0] = (byte)headerID;
-            final[1] = (byte)(data.Length >> 8);
-            final[2] = (byte)(data.Length >> 16);
-            final[3] = (byte)(data.Length >> 24);
-
-            Array.Copy(data, 0, final, 4, data.Length);
-            return final;
         }
 
         void OnDestroy() {
